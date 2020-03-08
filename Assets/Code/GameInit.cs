@@ -9,10 +9,10 @@ public class GameInit : MonoBehaviour
     {
         StartCoroutine(LoadGame());
     }
-/*    private void Start()
-    {
-        //InitGame();
-    }*/
+    /*    private void Start()
+        {
+            //InitGame();
+        }*/
     private IEnumerator LoadGame()
     {
         Debug.Log("Loading...");
@@ -22,6 +22,8 @@ public class GameInit : MonoBehaviour
             "Level_Items", LoadSceneMode.Additive);
         SceneManager.LoadScene(
             "Level_Player", LoadSceneMode.Additive);
+        SceneManager.LoadScene(
+            "Level_UI", LoadSceneMode.Additive);
         yield return null;
         Debug.Log("Loaded.");
         InitGame();
@@ -72,8 +74,30 @@ public class GameInit : MonoBehaviour
                 Game.CURRENTLEVEL = go.GetComponent<LevelBase>();
             }
         }
-        Game.CURRENTLEVEL.InitLevel();
-        StartCoroutine(WaveManager.Instance.InitializeWave(1));
 
+        s = SceneManager.GetSceneByName("Level_UI");
+        SceneManager.SetActiveScene(s);
+        foreach (GameObject go in s.GetRootGameObjects())
+        {
+            if (go.name == "Controller")
+            {
+                Game.UI = go.GetComponent<LevelUI>();
+            }
+        }
+
+
+        s = SceneManager.GetSceneByName("Level_Street");
+        SceneManager.SetActiveScene(s);
+        Game.CURRENTLEVEL.InitLevel();
+        Game.UI.ChangeHpText(Game.PLAYER.healthPoints.ToString());
+        StartCoroutine(WaveManager.Instance.InitializeWave(1));
+        StartCoroutine(Intro());
+    }
+
+    private IEnumerator Intro()
+    {
+        Game.UI.TriggerAnnouncement("Destroy All Zombies");
+        yield return new WaitForSeconds(5);
+        Game.UI.TriggerAnnouncement("Press SHIFT to run!");
     }
 }

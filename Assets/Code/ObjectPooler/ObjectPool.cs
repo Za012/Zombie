@@ -23,7 +23,6 @@ public class ObjectPool : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         poolDictionary = new Dictionary<string, Queue<PooledObject>>();
         foreach (Pool pool in pools)
         {
@@ -37,7 +36,7 @@ public class ObjectPool : MonoBehaviour
             poolDictionary.Add(pool.tag, objectPool);
         }
     }
-    public IEnumerator WaitToDespawn(string tag, PooledObject gameObjectToDespawn,float timeToDespawn)
+    public IEnumerator WaitToDespawn(string tag, PooledObject gameObjectToDespawn, float timeToDespawn)
     {
         yield return new WaitForSeconds(timeToDespawn);
         DespawnObject(tag, gameObjectToDespawn);
@@ -45,7 +44,7 @@ public class ObjectPool : MonoBehaviour
     }
     public void DespawnObject(string tag, PooledObject goToQueue, float timeToDespawn = 0f)
     {
-        if(timeToDespawn > 0)
+        if (timeToDespawn > 0)
         {
             StartCoroutine(WaitToDespawn(tag, goToQueue, timeToDespawn));
             return;
@@ -60,7 +59,7 @@ public class ObjectPool : MonoBehaviour
             Debug.LogWarning("Pool with tag " + tag + " doesn't exist");
             return null;
         }
-        if(poolDictionary[tag].Count <= 0)
+        if (poolDictionary[tag].Count <= 0)
         {
             return null;
         }

@@ -68,7 +68,7 @@
     <Compile Include="Assets\Code\GameInit.cs" />
     <Compile Include="Assets\Code\Level\LevelBase.cs" />
     <Compile Include="Assets\Code\Level\LevelStreet.cs" />
-    <Compile Include="Assets\Code\Movement\Character.cs" />
+    <Compile Include="Assets\Code\Level\LevelUI.cs" />
     <Compile Include="Assets\Code\Movement\MouseLook.cs" />
     <Compile Include="Assets\Code\Movement\Movement.cs" />
     <Compile Include="Assets\Code\Movement\Player.cs" />

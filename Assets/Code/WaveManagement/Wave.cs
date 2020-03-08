@@ -1,20 +1,24 @@
-﻿using Assets.Objects.ObjectPooler;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Code.WaveManagement
 {
     public abstract class Wave
     {
         public abstract int ZOMBIECOUNT { get; }
-        public abstract int SEQUENCE { get;}
+        public abstract int SEQUENCE { get; }
+        public abstract int MAXZOMBIECOUNT { get; }
+        public abstract bool NEXTTRACK { get; }
 
+        protected readonly int zombiePoolSize;
+        protected int iteration = 0;
         protected GameObject spawnPoints = null;
+
         public Wave()
         {
+            zombiePoolSize = Game.POOL.poolDictionary["zombie"].Count;
             spawnPoints = GameObject.Find("SpawnPoints");
             iteration = 0;
         }
-        protected int iteration = 0;
         public virtual int GetZombieCount()
         {
             return ZOMBIECOUNT;
@@ -25,19 +29,22 @@ namespace Assets.Code.WaveManagement
         }
         public virtual void SpawnWave()
         {
-            for (iteration = iteration; iteration < spawnPoints.transform.childCount; iteration++)
+            while (true)
             {
-                Transform spawner = spawnPoints.transform.GetChild(iteration);
-                Game.POOL.SpawnFromPool("zombie", spawner.position, spawner.rotation);
-                if (iteration + 1 == spawnPoints.transform.childCount && 0 <= WaveManager.Instance.currentAlive)
+                if (iteration == spawnPoints.transform.childCount && 0 <= WaveManager.Instance.currentAlive)
                 {
                     iteration = 0;
                 }
-                if (Game.POOL.poolDictionary["zombie"].Count <= 0)
+                Transform spawner = spawnPoints.transform.GetChild(iteration);
+                Game.POOL.SpawnFromPool("zombie", spawner.position, spawner.rotation);
+
+                int zombiesSpawned = zombiePoolSize - Game.POOL.poolDictionary["zombie"].Count;
+                if (zombiesSpawned >= MAXZOMBIECOUNT || Game.POOL.poolDictionary["zombie"].Count <= 0)
                 {
                     iteration++;
                     break;
                 }
+                iteration++;
             }
         }
     }

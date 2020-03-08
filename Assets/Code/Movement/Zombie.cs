@@ -8,6 +8,7 @@ public class Zombie : PooledObject
     private NavMeshAgent agent = null;
     private Animator m_animator = null;
     public float walkSpeed = 4f;
+    private bool isDamagingPlayer;
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -25,21 +26,25 @@ public class Zombie : PooledObject
     private void Update()
     {
         float speed = agent.speed;
-        if(Game.PLAYER != null)
+        if (Game.PLAYER != null)
         {
-            if (IsPlayerWithinDistance(7))
+            if (IsPlayerWithinDistance(9.5f))
             {
                 StopCoroutine(IdleWalk());
                 agent.SetDestination(Game.PLAYER.transform.position);
-                
                 m_animator.SetTrigger("TargetDetected");
-                if (IsPlayerWithinDistance(2))
+
+                if (IsPlayerWithinDistance(1.5f))
                 {
+                    if (!isDamagingPlayer)
+                        StartCoroutine("DoDamage");
                     agent.speed = 0.1f;
                     m_animator.SetTrigger("Hit");
                 }
                 else
                 {
+                    StopCoroutine("DoDamage");
+                    isDamagingPlayer = false;
                     agent.speed = walkSpeed;
                 }
             }
@@ -49,6 +54,13 @@ public class Zombie : PooledObject
                 m_animator.SetTrigger("TargetLost");
             }
         }
+    }
+    public IEnumerator DoDamage()
+    {
+        isDamagingPlayer = true;
+        yield return new WaitForSeconds(1f);
+        Game.PLAYER.Damage(4);
+        isDamagingPlayer = false;
     }
     private Vector3 RandomNavmeshLocation(float radius)
     {
@@ -68,12 +80,11 @@ public class Zombie : PooledObject
         agent.speed = walkSpeed / 2;
         agent.SetDestination(RandomNavmeshLocation(20f));
         yield return new WaitForSeconds(5);
-
     }
 
     public void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.layer == LayerMask.NameToLayer("Bullets"))
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Bullets"))
         {
             Game.POOL.DespawnObject("zombie", this);
             WaveManager.Instance.NotifyDeath();
@@ -81,11 +92,11 @@ public class Zombie : PooledObject
     }
     public override void OnObjectSpawn()
     {
-        // Zombie mechanics
+
     }
 
     public override void OnObjectDespawn()
     {
-        // 
+
     }
 }

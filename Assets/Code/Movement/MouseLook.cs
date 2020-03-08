@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MouseLook : MonoBehaviour
 {
@@ -14,7 +12,7 @@ public class MouseLook : MonoBehaviour
 
     void Update()
     {
-        if(Game.PLAYER == null)
+        if (Game.PLAYER == null)
         {
             return;
         }

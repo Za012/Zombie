@@ -196,7 +196,7 @@ MonoBehaviour:
   - tag: zombie
     prefab: {fileID: 3403439109973053743, guid: 3837ec6a09358ca49b30686ee33bb346,
       type: 3}
-    size: 10
+    size: 30
   - tag: bullet
     prefab: {fileID: 110245233548794812, guid: e2e4f301a406ad6488af5d3b0cb40369, type: 3}
     size: 30

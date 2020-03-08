@@ -1,7 +1,5 @@
 ﻿using Assets.Code.WaveManagement;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WaveManager : MonoBehaviour
@@ -9,6 +7,11 @@ public class WaveManager : MonoBehaviour
     public Wave CurrentWave { get; set; }
     public int currentAlive;
     private bool wavePaused = false;
+    public AudioSource audioSource = null;
+    private bool isZombieSpawnTriggered = false;
+    public int currentMusic;
+    public AudioClip[] waveMusic;
+
 
     // Start is called before the first frame update
     #region Singleton
@@ -19,14 +22,20 @@ public class WaveManager : MonoBehaviour
     public static WaveManager Instance;
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         Instance = this;
+        currentMusic = 0;
+        waveMusic = Resources.LoadAll<AudioClip>("SoundTracks");
     }
     #endregion
+
     public IEnumerator InitializeWave(int i)
     {
-        wavePaused = true;
-        yield return new WaitForSeconds(5);
         Debug.Log("Initializing Wave " + i);
+        wavePaused = true;
+        yield return new WaitForSeconds(2);
+
+        Game.UI.TriggerAnnouncement("Wave " + i);
         switch (i)
         {
             case 1:
@@ -40,22 +49,32 @@ public class WaveManager : MonoBehaviour
                 break;
             default:
                 GameOver();
-                break;
+                yield break;
         }
+        if (CurrentWave.NEXTTRACK)
+        {
+            audioSource.clip = waveMusic[currentMusic];
+            audioSource.Play();
+            currentMusic++;
+        }
+        yield return new WaitForSeconds(10);
         currentAlive = CurrentWave.GetZombieCount();
         CurrentWave.SpawnWave();
         wavePaused = false;
-        yield break;
     }
     private void GameOver()
     {
-        wavePaused = true;
-        for (int i = 0; i < 10; i++)
+        if(Game.PLAYER.healthPoints <= 0)
         {
-            Debug.Log("GAME OVER");
+            Game.UI.TriggerAnnouncement("You've failed :c");
         }
+        else
+        {
+            Game.UI.TriggerAnnouncement("\\o/ YOU WIN \\o/");
+        }
+        wavePaused = true;
+        Debug.Log("GAME OVER");
     }
-    private bool isZombieSpawnTriggered = false;
     private IEnumerator WaitForZombieSpawn()
     {
         yield return new WaitForSeconds(4);
@@ -72,7 +91,7 @@ public class WaveManager : MonoBehaviour
         if (currentAlive <= 0)
         {
             Debug.Log("Wave Complete");
-            int nextSequence = CurrentWave.GetSequence()+1;
+            int nextSequence = CurrentWave.GetSequence() + 1;
             StartCoroutine(InitializeWave(nextSequence));
         }
         else
